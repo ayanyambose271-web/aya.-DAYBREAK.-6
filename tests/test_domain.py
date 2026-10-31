@@ -12,7 +12,7 @@ def test_questions_are_public_safe_and_have_unique_ids():
     assert len(questions) == 2
     assert len({q["id"] for q in questions}) == 2
     for question in questions:
-        assert set(question) == {"id", "topic_id", "prompt", "choices", "difficulty", "mode"}
+        assert set(question) == {"id", "topic_id", "prompt", "choices", "difficulty", "mode", "source"}
         assert len(question["choices"]) == 4
         assert "correct_index" not in question
         assert "explanation" not in question
@@ -24,23 +24,23 @@ def test_invalid_topic_raises_value_error():
 
 
 def test_grading_correct_answer():
-    result = grade_answer("psy-001", 1)
+    result = grade_answer("psyc26-psy-m1", 0)
     assert result["correct"] is True
-    assert result["correct_index"] == 1
+    assert result["correct_index"] == 0
     assert result["explanation"]
 
 
 def test_grading_wrong_answer():
-    result = grade_answer("psy-001", 0)
+    result = grade_answer("psyc26-psy-m1", 1)
     assert result["correct"] is False
-    assert result["correct_index"] == 1
+    assert result["correct_index"] == 0
 
 
 def test_bad_question_or_choice_is_rejected():
     with pytest.raises(ValueError, match="Unknown question"):
         grade_answer("none", 0)
     with pytest.raises(ValueError, match="between 0 and 3"):
-        grade_answer("psy-001", 5)
+        grade_answer("psyc26-psy-m1", 5)
 
 
 def test_medium_and_hard_modes_have_four_unique_questions_per_topic():
