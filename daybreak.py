@@ -4,6 +4,7 @@ The bank contains original sample questions, not course-source-grounded exam ite
 Swap it for verified material before using this as a serious revision tool.
 """
 from random import sample
+from difficulty_bank import NEW_QUESTIONS
 
 TOPICS = [
     {"id": "psychopathology", "name": "Psychopathology", "short": "Diagnosis, concepts & context", "tag": "TERM 3", "tone": "violet"},
@@ -29,18 +30,24 @@ _BANK = [
     {"id": "pos-001", "topic_id": "positive-psychology", "difficulty": "Applied", "prompt": "A well-being programme focuses on individual optimism but ignores food insecurity and community support. What is a reasonable critique?", "choices": ["Optimism always makes poverty irrelevant", "Social conditions cannot affect well-being", "An exclusively individual focus can miss relational and structural influences", "Well-being cannot be studied"], "correct_index": 2, "explanation": "Contextual approaches consider relationships, resources and inequalities alongside individual strengths."},
     {"id": "pos-002", "topic_id": "positive-psychology", "difficulty": "Conceptual", "prompt": "Why would a community-centred well-being measure include social connectedness?", "choices": ["All cultures define happiness identically", "Relationships can be part of how well-being is experienced and sustained", "Connectedness is only relevant in childhood", "Questionnaires cannot measure relationships"], "correct_index": 1, "explanation": "Social connections and collective contexts can be central to experiences of well-being; measurement should reflect the construct being studied."},
 ]
+# All original demonstration questions from the first version belong to Medium.
+for _question in _BANK:
+    _question["mode"] = "medium"
+_BANK.extend(NEW_QUESTIONS)
 _QUESTION_BY_ID = {question["id"]: question for question in _BANK}
 _TOPIC_IDS = {topic["id"] for topic in TOPICS}
 
 
-def get_questions(topic_id: str, count: int = 5) -> list[dict]:
+def get_questions(topic_id: str, count: int = 5, mode: str = "medium") -> list[dict]:
     if topic_id not in _TOPIC_IDS:
         raise ValueError("Unknown topic")
+    if mode not in ("medium", "hard"):
+        raise ValueError("Unknown difficulty mode")
     if not 1 <= count <= 20:
         raise ValueError("Count must be between 1 and 20")
-    available = [q for q in _BANK if q["topic_id"] == topic_id]
+    available = [q for q in _BANK if q["topic_id"] == topic_id and q["mode"] == mode]
     selected = sample(available, min(count, len(available)))
-    fields = ("id", "topic_id", "prompt", "choices", "difficulty")
+    fields = ("id", "topic_id", "prompt", "choices", "difficulty", "mode")
     return [{key: question[key] for key in fields} for question in selected]
 
 
@@ -53,5 +60,6 @@ def grade_answer(question_id: str, answer_index: int) -> dict:
     return {
         "correct": answer_index == question["correct_index"],
         "correct_index": question["correct_index"],
+        "mode": question["mode"],
         "explanation": question["explanation"],
     }
