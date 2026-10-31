@@ -2,7 +2,7 @@
 
 A small complete browser app with a **FastAPI Python backend**, responsive HTML/CSS/JS frontend, question grading, locally stored practice history, automated Python tests, GitHub Actions CI, and a Vercel-compatible deployment entrypoint.
 
-**Important:** Contains 12 original **sample** questions. It is **not** a course-sourced exam guide; replace the bank with rigorously checked materials before treating it as authoritative.
+**Important:** Contains 48 original **sample** questions (24 Medium, 24 Hard). It is **not** a course-sourced exam guide; replace the bank with rigorously checked materials before treating it as authoritative.
 
 ## Run locally
 
@@ -26,7 +26,7 @@ Open <http://127.0.0.1:8000>. Swagger API docs: <http://127.0.0.1:8000/api/docs>
 | `GET /` | Web interface |
 | `GET /api/health` | Health check |
 | `GET /api/topics` | List topics |
-| `GET /api/questions?topic_id=psychopathology&count=2` | Questions (answer key omitted) |
+| `GET /api/questions?topic_id=psychopathology&count=4&mode=hard` | Questions (answer key omitted) |
 | `POST /api/grade` | Grade `{ "question_id": "psy-001", "answer_index": 1 }` and return explanation |
 
 ## The four-tool workflow
@@ -41,7 +41,8 @@ Vercel's Python runtime supports FastAPI (see https://vercel.com/docs/frameworks
 ## Files
 
 - `app.py`: FastAPI route handlers and site entrypoint
-- `daybreak.py`: sample topic and question data, grading engine
+- `daybreak.py`: sample topic/question data, filtering by difficulty and grading engine
+- `difficulty_bank.py`: original Medium and Hard questions with scenario-based feedback
 - `static/index.html`: accessible app structure
 - `static/styles.css`: responsive dark UI
 - `static/app.js`: browser interaction and local progress
@@ -52,7 +53,8 @@ Vercel's Python runtime supports FastAPI (see https://vercel.com/docs/frameworks
 
 - Question answers are not included in `GET /api/questions`; the server checks submissions.
 - The question bank is *in the source code*, and anyone with access to the source can read it; use this only as a learning prototype, not a secure high-stakes testing product.
+- Medium and Hard attempts are tracked separately for new sessions. Legacy attempts may appear only in overall totals.
 - Progress is stored only in this browser's `localStorage`; it is not synced between devices and can be wiped by clearing browser storage.
 - No login, database, AI generation, file uploads, payments, usage tracking or background agents are installed.
 - Avoid adding secret API keys to the repository. Use Vercel project environment variables for later integrations.
-- Test coverage here checks Python logic and API responses; browser click-through testing on an actual Vercel preview would be a separate release gate.
+- Test coverage here checks Python logic and API responses; browser click-through testing and production HTTP checks should be included in release verification.
