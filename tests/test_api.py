@@ -1,0 +1,57 @@
+from fastapi.testclient import TestClient
+from app import app
+
+client = TestClient(app)
+
+
+def test_health():
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+def test_home_returns_html():
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "DAYBREAK" in response.text
+    assert "text/html" in response.headers["content-type"]
+
+
+def test_topics():
+    response = client.get("/api/topics")
+    assert response.status_code == 200
+    assert len(response.json()["topics"]) == 6
+
+
+def test_questions_obscure_answer_key():
+    response = client.get("/api/questions", params={"topic_id": "psychopathology", "count": 2})
+    assert response.status_code == 200
+    assert len(response.json()["questions"]) == 2
+    for question in response.json()["questions"]:
+        assert "correct_index" not in question
+        assert "explanation" not in question
+
+
+def test_invalid_topic_returns_404():
+    assert client.get("/api/questions", params={"topic_id": "missing"}).status_code == 404
+
+
+def test_count_is_validated():
+    assert client.get("/api/questions", params={"topic_id": "psychopathology", "count": 0}).status_code == 422
+
+
+def test_grade_answer_through_api():
+    response = client.post("/api/grade", json={"question_id": "psy-001", "answer_index": 1})
+    assert response.status_code == 200
+    assert response.json()["correct"] is True
+
+
+def test_bad_question_through_api():
+    response = client.post("/api/grade", json={"question_id": "bad", "answer_index": 1})
+    assert response.status_code == 404
+
+
+def test_static_asset_is_served():
+    response = client.get("/static/app.js")
+    assert response.status_code == 200
+    assert "async function beginTopic" in response.text
