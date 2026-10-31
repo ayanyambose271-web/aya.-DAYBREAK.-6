@@ -13,6 +13,8 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install -r requirements-dev.txt
       - name: Check Python syntax
-        run: python -m compileall -q app.py daybreak.py
+        run: python -m compileall -q app.py daybreak.py difficulty_bank.py
+      - name: Check JavaScript syntax
+        run: node --check static/app.js
       - name: Run tests
         run: python -m pytest -q
