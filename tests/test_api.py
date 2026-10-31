@@ -41,9 +41,10 @@ def test_count_is_validated():
 
 
 def test_grade_answer_through_api():
-    response = client.post("/api/grade", json={"question_id": "psy-001", "answer_index": 1})
+    response = client.post("/api/grade", json={"question_id": "psyc26-psy-m1", "answer_index": 0})
     assert response.status_code == 200
     assert response.json()["correct"] is True
+    assert response.json()["source"]["basis"] == "prescribed_textbook"
 
 
 def test_bad_question_through_api():
@@ -78,3 +79,16 @@ def test_medium_mode_default_and_ui_selectors_exist():
     assert 'id="mode-select"' in html
     assert 'data-mode="hard"' in html
     assert 'data-mode="medium"' in html
+
+
+def test_course_source_register_is_exposed_without_full_copyrighted_text():
+    response = client.get("/api/sources")
+    assert response.status_code == 200
+    assert response.json()["sources"]["T18a"]["basis"] == "prescribed_textbook"
+    assert response.json()["sources"]["W2"]["basis"] == "course_lecture"
+
+def test_page_explains_lecture_vs_textbook_evidence():
+    page = client.get("/").text
+    assert "Textbook-verified" in page
+    assert "Lecture-grounded" in page
+    assert "not official exam items" in page
