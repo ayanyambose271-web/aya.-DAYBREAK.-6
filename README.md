@@ -1,60 +1,45 @@
-# DAYBREAK Study Lab — working demonstration
+# DAYBREAK Study Lab — PSY144 2026 source-grounded edition
 
-A small complete browser app with a **FastAPI Python backend**, responsive HTML/CSS/JS frontend, question grading, locally stored practice history, automated Python tests, GitHub Actions CI, and a Vercel-compatible deployment entrypoint.
+Browser-based medium/hard MCQ practice for Stellenbosch University PSY144. Built with FastAPI, Python, JavaScript, pytest and deployable to Vercel.
 
-**Important:** Contains 48 original **sample** questions (24 Medium, 24 Hard). It is **not** a course-sourced exam guide; replace the bank with rigorously checked materials before treating it as authoritative.
+## What is in v0.3
 
-## Run locally
+- **48 original questions:** 4 Medium + 4 Hard per topic, across six named Term 3/4 revision topics.
+- Answer explanations reveal the supporting reading or slide deck **after** the attempt.
+- Source tags distinguish **prescribed textbook evidence** from **2026 lecture evidence**.
+- Separate local browser progress tracking for Medium and Hard.
+- No user accounts, personal information, uploaded copyrighted PDFs, or source textbook passages embedded in this public repository.
 
-Requirements: Python 3.13 (3.12+ likely works).
+## Evidence coverage
+
+**Directly checked against uploaded textbook:**
+- Swartz et al. (2021), *Psychology: An Introduction*, fifth edition, Chapter 24 (Cartwright), PDF pp. 1250–1254: defining psychopathology.
+- Swartz et al. (2021), Chapter 18 (Terre Blanche & Stevens), PDF pp. 934–938: poverty, social context and inequality.
+
+**Directly checked against the user's 2026 lecture presentations (not against the unprovided full prescribed texts):**
+- `Poverty 2026 upload copy.pptx`; `Ethnicity 2026 upload copy.pptx`.
+- `Culture and Mental health 2026 1.pptx`; `Culture and Mental Health Psyc 144 2026 week 2 upload copy.pptx`.
+- `African Psy, Lecture 1 of 2, 2026.pptx`; `African Psy, Lecture 2 of 2, 2026.pptx` (Ratele orientations).
+- `African Psy, WellBeing in Africa African Pos Psy, Lectures 1 of 2, 2026.pptx` and `Lectures 2 of 2` (Fadiji, Khumalo & Zulu overview).
+
+**Limits:** Weiten & Ntozini (2022) Chapters 16–17 and the full Ratele (2017) / Fadiji et al. (2022) texts have not been directly checked. These topics must display **LECTURE GROUNDED**, not textbook verified. The six-topic revision bank is not the complete course examination blueprint; developmental and personality topics may also be examinable. The questions are our own, not actual SU examination material.
+
+## Local development
 
 ```bash
-python -m venv .venv
-# Windows (PowerShell): .venv\Scripts\Activate.ps1
-# macOS/Linux: source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
 python -m pytest -q
 python -m uvicorn app:app --reload
 ```
 
-Open <http://127.0.0.1:8000>. Swagger API docs: <http://127.0.0.1:8000/api/docs>.
+Open `http://127.0.0.1:8000` and API documentation at `/api/docs`.
 
 ## API
 
-| Endpoint | Purpose |
-| --- | --- |
-| `GET /` | Web interface |
-| `GET /api/health` | Health check |
-| `GET /api/topics` | List topics |
-| `GET /api/questions?topic_id=psychopathology&count=4&mode=hard` | Questions (answer key omitted) |
-| `POST /api/grade` | Grade `{ "question_id": "psy-001", "answer_index": 1 }` and return explanation |
+- `GET /api/health`
+- `GET /api/topics`
+- `GET /api/sources` — source register and limits
+- `GET /api/questions?topic_id=psychopathology&mode=hard&count=4`
+- `POST /api/grade` with `{"question_id":"psyc26-psy-m1","answer_index":0}`
 
-## The four-tool workflow
-
-1. **Superpowers:** Agree on scope, write an implementation plan, create failing tests first (TDD), implement and verify.
-2. **Python:** FastAPI serves a browser UI and question APIs; `pytest` tests logic and HTTP routes.
-3. **GitHub:** Create a repository, commit these files and open a pull request. `.github/workflows/tests.yml` runs tests on pushes and PRs. Protect `main` so changes require passing checks before merging.
-4. **Vercel:** Import the GitHub repo through the Vercel dashboard, choose **FastAPI** or the automatically detected framework, and deploy a preview first. The entrypoint is the root-level `app.py` with a variable named `app`, as supported by Vercel. Verify `/`, `/api/health`, the static assets and the quiz interaction on preview before production.
-
-Vercel's Python runtime supports FastAPI (see https://vercel.com/docs/frameworks/backend/fastapi). A connected Git repo can automatically deploy new commits and PR previews. Confirm project/team ownership and the intended branch before deploying.
-
-## Files
-
-- `app.py`: FastAPI route handlers and site entrypoint
-- `daybreak.py`: sample topic/question data, filtering by difficulty and grading engine
-- `difficulty_bank.py`: original Medium and Hard questions with scenario-based feedback
-- `static/index.html`: accessible app structure
-- `static/styles.css`: responsive dark UI
-- `static/app.js`: browser interaction and local progress
-- `tests/`: domain and API regression tests
-- `.github/workflows/tests.yml`: GitHub CI tests
-
-## Security and architecture notes
-
-- Question answers are not included in `GET /api/questions`; the server checks submissions.
-- The question bank is *in the source code*, and anyone with access to the source can read it; use this only as a learning prototype, not a secure high-stakes testing product.
-- Medium and Hard attempts are tracked separately for new sessions. Legacy attempts may appear only in overall totals.
-- Progress is stored only in this browser's `localStorage`; it is not synced between devices and can be wiped by clearing browser storage.
-- No login, database, AI generation, file uploads, payments, usage tracking or background agents are installed.
-- Avoid adding secret API keys to the repository. Use Vercel project environment variables for later integrations.
-- Test coverage here checks Python logic and API responses; browser click-through testing and production HTTP checks should be included in release verification.
+Question responses never reveal answer keys; the grade route returns the correct answer, explanation and source. This is a practice application, not a secured examination system (a motivated user can inspect application source).
