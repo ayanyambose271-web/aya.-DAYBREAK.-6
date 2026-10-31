@@ -55,3 +55,26 @@ def test_static_asset_is_served():
     response = client.get("/static/app.js")
     assert response.status_code == 200
     assert "async function beginTopic" in response.text
+
+
+def test_hard_mode_api_only_returns_hard_questions():
+    response = client.get("/api/questions", params={"topic_id": "psychopathology", "count": 4, "mode": "hard"})
+    assert response.status_code == 200
+    assert len(response.json()["questions"]) == 4
+    assert all(q["mode"] == "hard" for q in response.json()["questions"])
+    assert all("correct_index" not in q for q in response.json()["questions"])
+
+
+def test_unknown_mode_rejected_by_api():
+    response = client.get("/api/questions", params={"topic_id": "psychopathology", "mode": "extreme"})
+    assert response.status_code == 422
+
+
+def test_medium_mode_default_and_ui_selectors_exist():
+    response = client.get("/api/questions", params={"topic_id": "psychopathology", "count": 4})
+    assert response.status_code == 200
+    assert all(q["mode"] == "medium" for q in response.json()["questions"])
+    html = client.get("/").text
+    assert 'id="mode-select"' in html
+    assert 'data-mode="hard"' in html
+    assert 'data-mode="medium"' in html
