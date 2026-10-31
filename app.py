@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from daybreak import TOPICS, get_questions, grade_answer
 
 ROOT = Path(__file__).resolve().parent
-app = FastAPI(title="DAYBREAK Study Lab", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
+app = FastAPI(title="DAYBREAK Study Lab", version="0.2.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 
@@ -33,9 +33,9 @@ def topics():
 
 
 @app.get("/api/questions")
-def questions(topic_id: str, count: int = Query(default=2, ge=1, le=20)):
+def questions(topic_id: str, count: int = Query(default=4, ge=1, le=20), mode: str = Query(default="medium", pattern="^(medium|hard)$")):
     try:
-        return {"questions": get_questions(topic_id, count)}
+        return {"questions": get_questions(topic_id, count, mode=mode)}
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
