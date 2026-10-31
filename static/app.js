@@ -116,10 +116,15 @@ async function answer(q,index,choices) {
     const box=document.createElement('div');box.className='feedback';
     const strong=document.createElement('strong');strong.textContent=feedback.correct?'Correct — well reasoned.':'Not quite — here is the reasoning.';
     const explanation=document.createElement('p');explanation.textContent=feedback.explanation;
+    const provenance=document.createElement('div');provenance.className='source-evidence';
+    const sourceHeading=document.createElement('strong');sourceHeading.textContent=feedback.source.basis==='prescribed_textbook'?'TEXTBOOK VERIFIED':'LECTURE GROUNDED';
+    const sourceName=document.createElement('p');sourceName.textContent=feedback.source.title;
+    const sourceLocation=document.createElement('p');sourceLocation.textContent=feedback.source.location;
+    provenance.append(sourceHeading,sourceName,sourceLocation);
     const actions=document.createElement('div');actions.className='next-row';
     const next=document.createElement('button');next.type='button';next.className='button button-primary';next.textContent=state.index+1>=state.questions.length?'View summary →':'Next question →';
     next.addEventListener('click',()=>{state.index++;renderQuestion();});
-    actions.append(next);box.append(strong,explanation,actions);$('question-area').append(box);
+    actions.append(next);box.append(strong,explanation,provenance,actions);$('question-area').append(box);
     $('progress-fill').style.width=`${(state.index+1) / state.questions.length * 100}%`;
   } catch(err) {if (requestToken !== state.loadToken) return;state.locked=false;[...choices.children].forEach(button=>button.disabled=false);announce('Answer was not recorded. Try again.');}
 }
