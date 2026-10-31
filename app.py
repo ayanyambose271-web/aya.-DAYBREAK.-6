@@ -5,10 +5,10 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from daybreak import TOPICS, get_questions, grade_answer
+from daybreak import TOPICS, get_questions, grade_answer, SOURCES
 
 ROOT = Path(__file__).resolve().parent
-app = FastAPI(title="DAYBREAK Study Lab", version="0.2.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
+app = FastAPI(title="DAYBREAK Study Lab", version="0.3.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.mount("/static", StaticFiles(directory=ROOT / "static"), name="static")
 
 
@@ -30,6 +30,11 @@ def health():
 @app.get("/api/topics")
 def topics():
     return {"topics": TOPICS}
+
+
+@app.get("/api/sources")
+def sources():
+    return {"sources": SOURCES, "notice": "Direct textbook verification covers Swartz Ch. 18 & 24. Other topics use PSY144 lecture slides; full external prescribed chapters/articles not verified."}
 
 
 @app.get("/api/questions")
